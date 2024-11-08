@@ -17,6 +17,7 @@ metadata:
   name: konflux-fiddlings-on-pull-request
   namespace: vdemeest-tenant
 spec:
+  status: "PipelineRunPending"
   params:
   - name: git-url
     value: '{{source_url}}'
