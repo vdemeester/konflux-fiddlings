@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"math/rand"
 	"time"
 
@@ -11,9 +12,11 @@ import (
 	pipelineruninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1/pipelinerun"
 	pipelinerunreconciler "github.com/tektoncd/pipeline/pkg/client/injection/reconciler/pipeline/v1/pipelinerun"
 	listers "github.com/tektoncd/pipeline/pkg/client/listers/pipeline/v1"
+	jsonpatch "gomodules.xyz/jsonpatch/v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	// corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/utils/clock"
@@ -96,11 +99,23 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, pr *pipelinev1.PipelineR
 
 	time.Sleep(time.Duration(v) * time.Second)
 
-	if _, err := r.pipelineclientset.TektonV1().PipelineRuns(pr.Namespace).Update(ctx, pr, metav1.UpdateOptions{}); err != nil {
-		logger.Errorf("Failed to update PipelineRun %s: %v", pr.Name, err)
+	logger.Infof("Patching PipelineRun %s", pr.Name)
+
+	patches := []jsonpatch.JsonPatchOperation{{
+		Operation: "remove",
+		Path:      "/spec/status",
+	}}
+	patchBytes, err := json.Marshal(patches)
+	if err != nil {
+		logger.Errorf("Failed to marshal patch: %v", err)
+		return err
 	}
-	// if _, err := r.V1PipelineRunClient.Patch(ctx, pipelineRun.Name, types.JSONPatchType, patchBytes, metav1.PatchOptions{}, ""); err != nil {
-	// 	t.Fatalf("Failed to patch PipelineRun `%s` with graceful stop: %s", pipelineRun.Name, err)
-	// }
+	if _, err := r.pipelineclientset.TektonV1().PipelineRuns(pr.Namespace).Patch(ctx, pr.Name, types.JSONPatchType, patchBytes, metav1.PatchOptions{}, ""); err != nil {
+		logger.Errorf("Failed to patch PipelineRun %s: %v", pr.Name, err)
+		return err
+	}
+
+	logger.Infof("PipelineRun %s is now going to run", pr.Name)
+
 	return nil
 }
