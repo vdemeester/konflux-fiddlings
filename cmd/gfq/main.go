@@ -33,8 +33,6 @@ import (
 )
 
 func main() {
-	rand.Seed(time.Now().UnixNano())
-
 	// This parses flags.
 	cfg := injection.ParseAndGetRESTConfigOrDie()
 	if cfg.QPS == 0 {
@@ -51,6 +49,7 @@ func main() {
 	)
 }
 
+// newController creates a new controller.
 func newController(clock clock.PassiveClock) func(context.Context, configmap.Watcher) *controller.Impl {
 	return func(ctx context.Context, watcher configmap.Watcher) *controller.Impl {
 		kubeclientset := kubeclient.Get(ctx)
@@ -110,6 +109,8 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, pr *pipelinev1.PipelineR
 		logger.Errorf("Failed to marshal patch: %v", err)
 		return err
 	}
+
+	// Patch the PipelineRun to remove the status
 	if _, err := r.pipelineclientset.TektonV1().PipelineRuns(pr.Namespace).Patch(ctx, pr.Name, types.JSONPatchType, patchBytes, metav1.PatchOptions{}, ""); err != nil {
 		logger.Errorf("Failed to patch PipelineRun %s: %v", pr.Name, err)
 		return err
