@@ -34,6 +34,7 @@ func main() {
 		cfg.Burst = rest.DefaultBurst
 	}
 	ctx := injection.WithNamespaceScope(signals.NewContext(), "vdemeest-tenant")
+	ctx = sharedmain.WithHADisabled(ctx)
 
 	sharedmain.MainWithConfig(ctx, "fiddlings-controller", cfg,
 		newController(clock.RealClock{}),
@@ -57,6 +58,10 @@ func newController(clock clock.PassiveClock) func(context.Context, configmap.Wat
 			}
 		})
 
+		if _, err := pipelineRunInformer.Informer().AddEventHandler(controller.HandleAll(impl.Enqueue)); err != nil {
+			logging.FromContext(ctx).Panicf("Couldn't register PipelineRun informer event handler: %w", err)
+		}
+
 		return impl
 	}
 }
@@ -71,6 +76,11 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, pr *pipelinev1.PipelineR
 	logger := logging.FromContext(ctx)
 
 	logger.Infof("Reconciling PipelineRun %s", pr.Name)
+
+	if pr.Spec.Status == pipelinev1.PipelineRunSpecStatusPending {
+		logger.Infof("PipelineRun %s is pending, starting it", pr.Name)
+		pr.Spec.Status = ""
+	}
 
 	return nil
 }
