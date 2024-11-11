@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Small script to demo waiting and starting things independently of
+# the pipeline controller or the pipelines-as-code controller.
+
+TO_START=$(kubectl get pipelineruns --no-headers | fzf --multi --ansi | awk 'OFS="\t" {print $1}')
+
+for p in ${TO_START}; do
+    echo "Starting ${p}…"
+    kubectl patch pipelinerun ${p} --type=json -p="[{'op': 'remove', 'path': '/spec/status'}]"
+done
