@@ -18,6 +18,8 @@ metadata:
   namespace: vdemeest-tenant
 spec:
   status: "PipelineRunPending"
+  timeouts:
+    pipeline: 0h1m0s
   params:
   - name: git-url
     value: '{{source_url}}'
