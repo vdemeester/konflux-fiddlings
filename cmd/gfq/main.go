@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"math/rand"
+	"time"
 
 	pipelinev1 "github.com/tektoncd/pipeline/pkg/apis/pipeline/v1"
 	clientset "github.com/tektoncd/pipeline/pkg/client/clientset/versioned"
@@ -9,11 +11,14 @@ import (
 	pipelineruninformer "github.com/tektoncd/pipeline/pkg/client/injection/informers/pipeline/v1/pipelinerun"
 	pipelinerunreconciler "github.com/tektoncd/pipeline/pkg/client/injection/reconciler/pipeline/v1/pipelinerun"
 	listers "github.com/tektoncd/pipeline/pkg/client/listers/pipeline/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	// corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/utils/clock"
 	kubeclient "knative.dev/pkg/client/injection/kube/client"
+
 	// filteredinformerfactory "knative.dev/pkg/client/injection/kube/informers/factory/filtered"
 	"knative.dev/pkg/configmap"
 	"knative.dev/pkg/controller"
@@ -25,6 +30,8 @@ import (
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	// This parses flags.
 	cfg := injection.ParseAndGetRESTConfigOrDie()
 	if cfg.QPS == 0 {
@@ -75,12 +82,25 @@ type Reconciler struct {
 func (r *Reconciler) ReconcileKind(ctx context.Context, pr *pipelinev1.PipelineRun) reconciler.Event {
 	logger := logging.FromContext(ctx)
 
+	// no-op on non-pending PipelineRuns
+	if pr.Spec.Status != pipelinev1.PipelineRunSpecStatusPending {
+		return nil
+	}
 	logger.Infof("Reconciling PipelineRun %s", pr.Name)
 
-	if pr.Spec.Status == pipelinev1.PipelineRunSpecStatusPending {
-		logger.Infof("PipelineRun %s is pending, starting it", pr.Name)
-		pr.Spec.Status = ""
-	}
+	// Randomly sleep for a given amount of time
+	v := rand.Intn(60) + 10
 
+	logger.Infof("PipelineRun %s is pending, starting it in %d seconds", pr.Name, v)
+	pr.Spec.Status = ""
+
+	time.Sleep(time.Duration(v) * time.Second)
+
+	if _, err := r.pipelineclientset.TektonV1().PipelineRuns(pr.Namespace).Update(ctx, pr, metav1.UpdateOptions{}); err != nil {
+		logger.Errorf("Failed to update PipelineRun %s: %v", pr.Name, err)
+	}
+	// if _, err := r.V1PipelineRunClient.Patch(ctx, pipelineRun.Name, types.JSONPatchType, patchBytes, metav1.PatchOptions{}, ""); err != nil {
+	// 	t.Fatalf("Failed to patch PipelineRun `%s` with graceful stop: %s", pipelineRun.Name, err)
+	// }
 	return nil
 }
