@@ -4,7 +4,7 @@ go 1.22.7
 
 require (
 	github.com/tektoncd/pipeline v0.65.1
-	gomodules.xyz/jsonpatch/v2 v2.4.0
+	gomodules.xyz/jsonpatch/v2/v3 v3.0.1
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.2
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
