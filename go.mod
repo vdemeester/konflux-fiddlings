@@ -1,6 +1,8 @@
 module github.com/vdemeester/konflux-fiddlings
 
-go 1.22.7
+go 1.23.0
+
+toolchain go1.23.8
 
 require (
 	github.com/tektoncd/pipeline v0.65.1
@@ -65,7 +67,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa // indirect
 	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/oauth2 v0.22.0 // indirect
+	golang.org/x/oauth2 v0.29.0 // indirect
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/term v0.26.0 // indirect
