@@ -7,7 +7,7 @@ require (
 	gomodules.xyz/jsonpatch/v2 v2.4.0
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.2
-	k8s.io/utils v0.0.0-20241210054802-24370beab758
+	k8s.io/utils 0f33e8f1c979
 	knative.dev/pkg v0.0.0-20241111070503-7b333a046a23
 )
 
