@@ -5,8 +5,8 @@ go 1.22.7
 require (
 	github.com/tektoncd/pipeline v0.65.1
 	gomodules.xyz/jsonpatch/v2 v2.4.0
-	k8s.io/apimachinery v0.31.2
-	k8s.io/client-go v0.31.2
+	k8s.io/apimachinery v0.33.1
+	k8s.io/client-go v0.33.1
 	k8s.io/utils v0.0.0-20241210054802-24370beab758
 	knative.dev/pkg v0.0.0-20241111070503-7b333a046a23
 )
@@ -79,8 +79,8 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.31.2 // indirect
-	k8s.io/apiextensions-apiserver v0.30.3 // indirect
+	k8s.io/api v0.33.1 // indirect
+	k8s.io/apiextensions-apiserver v0.33.1 // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240808142205-8e686545bdb8 // indirect
 	sigs.k8s.io/json v0.0.0-20221116044647-bc3834ca7abd // indirect
